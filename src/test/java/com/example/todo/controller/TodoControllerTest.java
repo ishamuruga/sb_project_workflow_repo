@@ -1,6 +1,7 @@
 package com.example.todo.controller;
 
 import com.example.todo.dto.CreateTodoRequest;
+import com.example.todo.model.Priority;
 import com.example.todo.model.Todo;
 import com.example.todo.service.TodoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,6 +49,7 @@ class TodoControllerTest {
                 .id(1L)
                 .title("Buy groceries")
                 .description("Milk, eggs, bread")
+                .priority(Priority.HIGH)
                 .completed(false)
                 .createdAt(fixedTime)
                 .updatedAt(fixedTime)
@@ -78,6 +80,7 @@ class TodoControllerTest {
                     .andExpect(jsonPath("$.id").value(1L))
                     .andExpect(jsonPath("$.title").value("Buy groceries"))
                     .andExpect(jsonPath("$.description").value("Milk, eggs, bread"))
+                    .andExpect(jsonPath("$.priority").value("HIGH"))
                     .andExpect(jsonPath("$.completed").value(false));
 
             verify(todoService, times(1)).createTodo(any(CreateTodoRequest.class));
@@ -93,6 +96,7 @@ class TodoControllerTest {
                     .id(2L)
                     .title("Read a book")
                     .description(null)
+                    .priority(Priority.MEDIUM)
                     .completed(false)
                     .createdAt(fixedTime)
                     .updatedAt(fixedTime)
@@ -188,10 +192,6 @@ class TodoControllerTest {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // GET /api/todos
-    // ─────────────────────────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("GET /api/todos - Get All Todos")
     class GetAllTodos {
@@ -203,6 +203,7 @@ class TodoControllerTest {
                     .id(2L)
                     .title("Go for a run")
                     .description("30 minutes in the park")
+                    .priority(Priority.LOW)
                     .completed(true)
                     .createdAt(fixedTime)
                     .updatedAt(fixedTime)
@@ -215,9 +216,11 @@ class TodoControllerTest {
                     .andExpect(jsonPath("$", hasSize(2)))
                     .andExpect(jsonPath("$[0].id").value(1L))
                     .andExpect(jsonPath("$[0].title").value("Buy groceries"))
+                    .andExpect(jsonPath("$[0].priority").value("HIGH"))
                     .andExpect(jsonPath("$[0].completed").value(false))
                     .andExpect(jsonPath("$[1].id").value(2L))
                     .andExpect(jsonPath("$[1].title").value("Go for a run"))
+                    .andExpect(jsonPath("$[1].priority").value("LOW"))
                     .andExpect(jsonPath("$[1].completed").value(true));
 
             verify(todoService, times(1)).getAllTodos();
@@ -256,6 +259,7 @@ class TodoControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0].id").exists())
                     .andExpect(jsonPath("$[0].title").exists())
+                    .andExpect(jsonPath("$[0].priority").exists())
                     .andExpect(jsonPath("$[0].completed").exists())
                     .andExpect(jsonPath("$[0].createdAt").exists())
                     .andExpect(jsonPath("$[0].updatedAt").exists());
@@ -265,9 +269,9 @@ class TodoControllerTest {
         @DisplayName("200 OK - both completed and pending todos are returned")
         void getAllTodos_mixedCompletionStatus_returnsAll() throws Exception {
             List<Todo> mixed = List.of(
-                    Todo.builder().id(1L).title("Pending task").completed(false)
+                    Todo.builder().id(1L).title("Pending task").priority(Priority.HIGH).completed(false)
                             .createdAt(fixedTime).updatedAt(fixedTime).build(),
-                    Todo.builder().id(2L).title("Done task").completed(true)
+                    Todo.builder().id(2L).title("Done task").priority(Priority.LOW).completed(true)
                             .createdAt(fixedTime).updatedAt(fixedTime).build()
             );
 
@@ -276,7 +280,9 @@ class TodoControllerTest {
             mockMvc.perform(get("/api/todos"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[?(@.completed == false)]", hasSize(1)))
-                    .andExpect(jsonPath("$[?(@.completed == true)]", hasSize(1)));
+                    .andExpect(jsonPath("$[?(@.completed == true)]", hasSize(1)))
+                    .andExpect(jsonPath("$[?(@.priority == 'HIGH')]", hasSize(1)))
+                    .andExpect(jsonPath("$[?(@.priority == 'LOW')]", hasSize(1)));
         }
 
         @Test

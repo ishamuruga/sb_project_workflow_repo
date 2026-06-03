@@ -32,6 +32,11 @@ public class Todo {
     @Builder.Default
     private boolean completed = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private Priority priority = Priority.MEDIUM;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

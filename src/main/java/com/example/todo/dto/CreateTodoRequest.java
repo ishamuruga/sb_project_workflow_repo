@@ -1,5 +1,6 @@
 package com.example.todo.dto;
 
+import com.example.todo.model.Priority;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -10,4 +11,6 @@ public class CreateTodoRequest {
     private String title;
 
     private String description;
+
+    private Priority priority = Priority.MEDIUM;
 }

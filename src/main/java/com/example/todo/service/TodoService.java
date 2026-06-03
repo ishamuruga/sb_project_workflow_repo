@@ -1,6 +1,7 @@
 package com.example.todo.service;
 
 import com.example.todo.dto.CreateTodoRequest;
+import com.example.todo.model.Priority;
 import com.example.todo.model.Todo;
 import com.example.todo.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +24,11 @@ public class TodoService {
         Todo todo = Todo.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
+                .priority(request.getPriority() != null ? request.getPriority() : Priority.MEDIUM)
                 .completed(false)
                 .build();
         Todo saved = todoRepository.save(todo);
-        log.info("Created todo with id: {}", saved.getId());
+        log.info("Created todo with id: {}, priority: {}", saved.getId(), saved.getPriority());
         return saved;
     }
 
