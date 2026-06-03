@@ -1,0 +1,5 @@
+When i push my code to github, start this activity
+    Checkout main
+    Build the project
+    Code Quality
+    Unit Test Cases
